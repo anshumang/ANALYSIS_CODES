@@ -22,8 +22,8 @@ __global__ void kernelSumCurrents(cudaPitchedPtr fieldJ, float3 *gCurrent, dim3 
     
     dim3 cell;
     cell.x = superCellIdx.x * superCellSize.x + threadIdx.x;
-    cell.y = superCellIdx.y * superCellSize.x + threadIdx.y;
-    cell.z = superCellIdx.z * superCellSize.x + threadIdx.z;
+    cell.y = superCellIdx.y * superCellSize.y + threadIdx.y;
+    cell.z = superCellIdx.z * superCellSize.z + threadIdx.z;
 
     char *fieldJPtr = (char *)fieldJ.ptr;
     size_t jSlicePitch = fieldJ.pitch * fieldJ.ysize;
@@ -35,19 +35,14 @@ __global__ void kernelSumCurrents(cudaPitchedPtr fieldJ, float3 *gCurrent, dim3 
     atomicAdd(&(sh_sumJ.y), myJ.y); 
     atomicAdd(&(sh_sumJ.z), myJ.z); 
     
-#if 0
     __syncthreads();
 
     if (linearThreadIdx == 0)
     {
-	    //atomicAdd(&(gCurrent->x), sh_sumJ.x); 
-	    //atomicAdd(&(gCurrent->y), sh_sumJ.y); 
-	    //atomicAdd(&(gCurrent->z), sh_sumJ.z); 
-	    atomicAdd(&(gCurrent->x), myJ.x); 
-	    atomicAdd(&(gCurrent->y), myJ.y); 
-	    atomicAdd(&(gCurrent->z), myJ.z); 
+	    atomicAdd(&(gCurrent->x), sh_sumJ.x); 
+	    atomicAdd(&(gCurrent->y), sh_sumJ.y); 
+	    atomicAdd(&(gCurrent->z), sh_sumJ.z); 
     }
-#endif
 }
 
 int main(){
